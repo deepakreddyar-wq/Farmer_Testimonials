@@ -26,7 +26,13 @@ h2 {
 
 .form-row { margin-bottom: 12px; }
 label { font-weight: bold; color: red; }
-input, select { width: 100%; padding: 10px; font-size: 16px; }
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
 
 button {
   width: 100%;
@@ -70,6 +76,7 @@ button {
   font-weight: bold;
   text-align: center;
   border-radius: 10px;
+  text-shadow: 2px 2px 6px #000;
 }
 
 canvas { display: none; }
@@ -84,38 +91,26 @@ canvas { display: none; }
 <label>ಉತ್ಪನ್ನ</label>
 <select id="product">
   <option value="">-- ಆಯ್ಕೆಮಾಡಿ --</option>
-  <option>RESONEX</option>
-  <option>TIRRACTO</option>
-  <option>RHYME</option>
-  <option>VAYOBEL</option>
+  <option value="RESONEX">RESONEX</option>
+  <option value="TIRRACTO">TIRRACTO</option>
+  <option value="RHYME">RHYME</option>
+  <option value="VAYOBEL">VAYOBEL</option>
 </select>
 </div>
 
 <div class="form-row"><label>ರೈತರ ಹೆಸರು</label><input id="farmer"></div>
-<div class="form-row"><label>ಮೊಬೈಲ್</label><input id="mobile" maxlength="10"></div>
+
+<div class="form-row">
+<label>ಮೊಬೈಲ್</label>
+<input id="mobile" type="tel" inputmode="numeric" maxlength="10">
+</div>
+
 <div class="form-row"><label>ಗ್ರಾಮ</label><input id="village"></div>
 <div class="form-row"><label>ಜಿಲ್ಲೆ</label><input id="district"></div>
 
-<div class="form-row"><label>Video</label><input type="file" id="videoInput" accept="video/*" capture></div>
-
-<hr>
-
 <div class="form-row">
-<label>Audio Option</label>
-<select id="audioMode">
-  <option value="video">Use Video Audio</option>
-  <option value="upload">Upload Audio</option>
-  <option value="record">Record New Audio</option>
-</select>
-</div>
-
-<div class="form-row" id="audioUpload" style="display:none">
-<input type="file" id="audioFile" accept="audio/*">
-</div>
-
-<div class="form-row" id="audioRecord" style="display:none">
-<button onclick="startAudio()">🎙 Start Recording</button>
-<button onclick="stopAudio()">⏹ Stop Recording</button>
+<label>Video (Record / Gallery)</label>
+<input type="file" id="videoInput" accept="video/*">
 </div>
 
 <button onclick="exportVideo()">⬇ Download Final Video</button>
@@ -142,78 +137,70 @@ const bg = document.getElementById("bg");
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
+const farmer = document.getElementById("farmer");
+const mobile = document.getElementById("mobile");
+const village = document.getElementById("village");
+const district = document.getElementById("district");
 const details = document.getElementById("details");
+const videoInput = document.getElementById("videoInput");
 
-let selectedVideo, audioBlob, audioRecorder;
+let selectedVideo = null;
 
-/* Numeric mobile */
-mobile.oninput = e => e.target.value = e.target.value.replace(/\D/g,'');
+/* Mobile number strict numeric */
+mobile.addEventListener("input", () => {
+  mobile.value = mobile.value.replace(/[^0-9]/g,"");
+});
 
-/* Banner */
-product.onchange = () => bg.src = bannerMap[product.value];
+/* Banner change */
+product.onchange = () => bg.src = bannerMap[product.value] || "";
 
-/* Video */
+/* Video select (record or gallery) */
 videoInput.onchange = e => {
   selectedVideo = e.target.files[0];
+  if (!selectedVideo) return;
   video.src = URL.createObjectURL(selectedVideo);
 };
 
-/* Overlay text */
-["farmer","mobile","village","district"].forEach(id =>
-  document.getElementById(id).oninput = () => {
-    details.innerHTML =
-      `Farmer: ${farmer.value} | ${village.value}, ${district.value} | Mob: ${mobile.value}`;
-  }
+/* Overlay update */
+function updateDetails() {
+  details.innerText =
+    `Farmer: ${farmer.value} | ${village.value}, ${district.value} | Mob: ${mobile.value}`;
+}
+[farmer,mobile,village,district].forEach(el =>
+  el.addEventListener("input", updateDetails)
 );
 
-/* Audio mode */
-audioMode.onchange = () => {
-  audioUpload.style.display = audioMode.value==="upload"?"block":"none";
-  audioRecord.style.display = audioMode.value==="record"?"block":"none";
-};
-
-/* Record audio */
-async function startAudio() {
-  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-  audioRecorder = new MediaRecorder(stream);
-  audioBlob = null;
-  const chunks = [];
-  audioRecorder.ondataavailable = e => chunks.push(e.data);
-  audioRecorder.onstop = () => audioBlob = new Blob(chunks,{type:"audio/webm"});
-  audioRecorder.start();
+/* Validation */
+function validate() {
+  if (!product.value) return alert("ಉತ್ಪನ್ನ ಆಯ್ಕೆಮಾಡಿ"), false;
+  if (!farmer.value.trim()) return alert("ರೈತರ ಹೆಸರು ನಮೂದಿಸಿ"), false;
+  if (mobile.value.length !== 10) return alert("10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ"), false;
+  if (!village.value.trim()) return alert("ಗ್ರಾಮ ನಮೂದಿಸಿ"), false;
+  if (!district.value.trim()) return alert("ಜಿಲ್ಲೆ ನಮೂದಿಸಿ"), false;
+  if (!selectedVideo) return alert("ವೀಡಿಯೋ ಆಯ್ಕೆಮಾಡಿ"), false;
+  return true;
 }
 
-function stopAudio() {
-  if (audioRecorder) audioRecorder.stop();
-}
+/* Export with MP4 preference */
+function exportVideo() {
 
-/* Export */
-async function exportVideo() {
+  if (!validate()) return;
 
-  const videoStream = canvas.captureStream(30);
-  let tracks = [...videoStream.getVideoTracks()];
+  const canvasStream = canvas.captureStream(30);
+  const videoStream = video.captureStream();
 
-  if (audioMode.value==="video") {
-    const vStream = video.captureStream();
-    tracks.push(...vStream.getAudioTracks());
+  const finalStream = new MediaStream([
+    ...canvasStream.getVideoTracks(),
+    ...videoStream.getAudioTracks()
+  ]);
+
+  let mimeType = "video/mp4";
+  if (!MediaRecorder.isTypeSupported(mimeType)) {
+    mimeType = "video/webm";
   }
 
-  if (audioMode.value==="upload" && audioFile.files[0]) {
-    const audio = new Audio(URL.createObjectURL(audioFile.files[0]));
-    const aStream = audio.captureStream();
-    audio.play();
-    tracks.push(...aStream.getAudioTracks());
-  }
-
-  if (audioMode.value==="record" && audioBlob) {
-    const audio = new Audio(URL.createObjectURL(audioBlob));
-    const aStream = audio.captureStream();
-    audio.play();
-    tracks.push(...aStream.getAudioTracks());
-  }
-
-  const mixedStream = new MediaStream(tracks);
-  const recorder = new MediaRecorder(mixedStream);
+  const recorder = new MediaRecorder(finalStream, { mimeType });
   const chunks = [];
 
   recorder.ondataavailable = e => chunks.push(e.data);
@@ -223,26 +210,34 @@ async function exportVideo() {
   video.play();
 
   function draw() {
+    ctx.clearRect(0,0,1280,720);
     ctx.drawImage(bg,0,0,1280,720);
     ctx.drawImage(video,230,160,900,470);
+
     ctx.fillStyle="rgba(0,0,0,0.6)";
     ctx.fillRect(230,540,900,80);
+
     ctx.fillStyle="yellow";
     ctx.font="bold 28px Arial";
     ctx.textAlign="center";
     ctx.fillText(details.innerText,680,590);
-    if (!video.paused) requestAnimationFrame(draw);
+
+    if (!video.ended) requestAnimationFrame(draw);
   }
   draw();
 
   video.onended = () => {
     recorder.stop();
     recorder.onstop = () => {
-      const blob = new Blob(chunks,{type:"video/webm"});
+      const blob = new Blob(chunks,{type:mimeType});
+      const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${product.value}-${farmer.value}-${mobile.value}.mp4`;
+      a.download = `${product.value}-${farmer.value}-${mobile.value}.${ext}`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
     };
   };
 }
