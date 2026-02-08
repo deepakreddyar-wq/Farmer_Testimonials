@@ -10,7 +10,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 10px;
-  background: url("Banner.jpg") no-repeat center / cover;
+  background: url("BANNER.jpg") no-repeat center / cover;
 }
 
 h2 {
@@ -212,7 +212,12 @@ function exportVideo() {
   function draw() {
     ctx.clearRect(0,0,1280,720);
     ctx.drawImage(bg,0,0,1280,720);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(230,160,900,470,20);
+    ctx.clip();
     ctx.drawImage(video,230,160,900,470);
+    ctx.restore();
 
     ctx.fillStyle="rgba(0,0,0,0.6)";
     ctx.fillRect(230,540,900,80);
@@ -245,3 +250,4 @@ function exportVideo() {
 
 </body>
 </html>
+
