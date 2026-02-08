@@ -57,7 +57,7 @@ button {
 #video {
   position: absolute;
   left: 18%;
-  top: 22%;
+  top: 21%;
   width: 80%;
   height: 65%;
   object-fit: cover;
@@ -218,9 +218,9 @@ function exportVideo() {
     ctx.drawImage(bg,0,0,1280,720);
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(230,160,975,470,28);
+    ctx.roundRect(230,160,990,470,28);
     ctx.clip();
-    ctx.drawImage(video,230,160,975,470);
+    ctx.drawImage(video,230,160,990,470);
     ctx.restore();
 
     ctx.fillStyle="rgba(0,0,0,0.6)";
@@ -254,6 +254,7 @@ function exportVideo() {
 
 </body>
 </html>
+
 
 
 
