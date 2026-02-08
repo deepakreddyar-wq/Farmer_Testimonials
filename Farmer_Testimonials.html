@@ -109,9 +109,16 @@ canvas { display: none; }
 <div class="form-row"><label>ಜಿಲ್ಲೆ</label><input id="district"></div>
 
 <div class="form-row">
-<label>Video (Record / Gallery)</label>
-<input type="file" id="videoInput" accept="video/*" capture>
-<button onclick="downloadVideo()">⬇ Download Video</button>
+  <label>Video (Record / Upload)</label>
+  <input
+    type="file"
+    id="videoInput"
+    accept="video/*"
+    capture="environment"
+  >
+</div>
+
+<button onclick="exportVideo()">⬇ Download Final Video</button>
 
 
 <!-- PREVIEW -->
@@ -249,5 +256,6 @@ function exportVideo() {
 
 </body>
 </html>
+
 
 
