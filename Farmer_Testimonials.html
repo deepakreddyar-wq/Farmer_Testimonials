@@ -110,10 +110,9 @@ canvas { display: none; }
 
 <div class="form-row">
 <label>Video (Record / Gallery)</label>
-<input type="file" id="videoInput" accept="video/*">
-</div>
+<input type="file" id="videoInput" accept="video/*" capture>
+<button onclick="downloadVideo()">⬇ Download Video</button>
 
-<button onclick="exportVideo()">⬇ Download Final Video</button>
 
 <!-- PREVIEW -->
 <div id="stage">
@@ -214,9 +213,9 @@ function exportVideo() {
     ctx.drawImage(bg,0,0,1280,720);
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(230,160,900,470,20);
+    ctx.roundRect(230,160,950,470,25);
     ctx.clip();
-    ctx.drawImage(video,230,160,900,470);
+    ctx.drawImage(video,230,160,950,470);
     ctx.restore();
 
     ctx.fillStyle="rgba(0,0,0,0.6)";
@@ -250,4 +249,5 @@ function exportVideo() {
 
 </body>
 </html>
+
 
