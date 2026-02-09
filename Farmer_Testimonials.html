@@ -110,14 +110,8 @@ canvas { display: none; }
 
 <div class="form-row">
   <label>Video (Record / Upload)</label>
-  <input
-    type="file"
-    id="videoInput"
-    accept="video/*">
-</div>
-
-<button onclick="exportVideo()">⬇ Download Final Video</button>
-
+  <input type="file" id="videoInput" accept="video/*" capture>
+<button onclick="downloadVideo()">⬇ Download Video</button>
 
 <!-- PREVIEW -->
 <div id="stage">
@@ -254,6 +248,7 @@ function exportVideo() {
 
 </body>
 </html>
+
 
 
 
